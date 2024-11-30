@@ -132,7 +132,7 @@ Widget build(BuildContext context) {
                   const SizedBox(height: 60),
                   FilledButton(
                     style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Colors.purple),
+                      backgroundColor: WidgetStateProperty.all(Colors.purple),
                     ),
                     onPressed: _handleSignUp,
                     child: const Padding(

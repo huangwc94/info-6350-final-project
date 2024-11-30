@@ -4,6 +4,7 @@ import '../components/tv_screen.dart';
 import '../components/weather_screen.dart';
 import '../components/ac_screen.dart';
 import 'package:flutter/material.dart';
+
 class Body extends StatefulWidget {
   const Body({Key? key}) : super(key: key);
 
@@ -15,10 +16,20 @@ class _BodyState extends State<Body> {
   String? _username, _password;
 
   final List<List<dynamic>> mySmartDevices = [
-    ["Light", Icons.lightbulb_outline, Color.fromARGB(255, 250, 228, 85), true],
-    ["TV", Icons.tv_outlined, Color.fromARGB(255, 244, 180, 219), true],
-    ["Weather", Icons.thermostat, Color.fromARGB(255, 212, 169, 250), true],
-    ["AC", Icons.ac_unit, Color.fromARGB(255, 203, 245, 164), true],
+    [
+      "Light",
+      Icons.lightbulb_outline,
+      const Color.fromARGB(255, 250, 228, 85),
+      true
+    ],
+    ["TV", Icons.tv_outlined, const Color.fromARGB(255, 244, 180, 219), true],
+    [
+      "Weather",
+      Icons.thermostat,
+      const Color.fromARGB(255, 212, 169, 250),
+      true
+    ],
+    ["AC", Icons.ac_unit, const Color.fromARGB(255, 203, 245, 164), true],
   ];
 
   @override
@@ -33,107 +44,102 @@ class _BodyState extends State<Body> {
               padding: const EdgeInsets.symmetric(
                 horizontal: 40.0,
                 vertical: 25.0,
-            ),
-            child: Row(
-              children: [
-                const Spacer(), 
-                const Text(
-                  'Smartly',
-                  style: TextStyle(fontSize: 24), 
-                ),
-                const Spacer(),
-                IconButton(
-                  icon: const Icon(Icons.account_circle_outlined),
-                  iconSize: 40.0,
-                  color: Color.fromARGB(255, 108, 76, 149),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/my_profile_screen');
-                  },
-                ),
-              ],
-            ),
+              ),
+              child: Row(
+                children: [
+                  const Spacer(),
+                  const Text(
+                    'Smartly',
+                    style: TextStyle(fontSize: 24),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.account_circle_outlined),
+                    iconSize: 40.0,
+                    color: const Color.fromARGB(255, 108, 76, 149),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/my_profile_screen');
+                    },
+                  ),
+                ],
+              ),
             ),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(
+            const Padding(
+              padding: EdgeInsets.symmetric(
                 horizontal: 40.0,
                 vertical: 10.0,
+              ),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Welcome Home,'),
+                    Text(
+                      'Ying',
+                      style: TextStyle(fontSize: 24),
+                    ),
+                  ]),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Welcome Home,'),
-                Text(
-                  'Ying',
-                  style: TextStyle(fontSize: 24),
-                ),
-              ]
-            ),
-            ), 
             // const SizedBox(height: 44),
-            Padding(
-              padding: const EdgeInsets.symmetric(
+            const Padding(
+              padding: EdgeInsets.symmetric(
                 horizontal: 40.0,
                 vertical: 25.0,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Smart Devices',
-                  style: TextStyle(fontSize: 24),
-                ),
-                
-              ]
-            ),
+              ),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Smart Devices',
+                      style: TextStyle(fontSize: 24),
+                    ),
+                  ]),
             ),
             Expanded(
               child: GridView.builder(
-                itemCount: mySmartDevices.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2), 
-                itemBuilder: (context, index) {
-                  return SmartDeviceBox(
-                    smartDeviceName: mySmartDevices[index][0] as String, 
-                    icon: mySmartDevices[index][1] as IconData,
-                    backgroundColor: mySmartDevices[index][2] as Color,
-                    onTap: () {
-                      if (index == 0) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LightScreen()),
-                        );
-                      } else if (index == 1) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => TvScreen()),
-                        );
-                      } else if (index == 2) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => WeatherScreen()),
-                        );
-                      } else if (index == 3) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => AcScreen()),
-                        );
-                      }
-                    }
-                  );
-                }
-              ),
-            ), 
-            
+                  itemCount: mySmartDevices.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2),
+                  itemBuilder: (context, index) {
+                    return SmartDeviceBox(
+                        smartDeviceName: mySmartDevices[index][0] as String,
+                        icon: mySmartDevices[index][1] as IconData,
+                        backgroundColor: mySmartDevices[index][2] as Color,
+                        onTap: () {
+                          if (index == 0) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const LightScreen()),
+                            );
+                          } else if (index == 1) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => TvScreen()),
+                            );
+                          } else if (index == 2) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const WeatherScreen()),
+                            );
+                          } else if (index == 3) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const AcScreen()),
+                            );
+                          }
+                        });
+                  }),
+            ),
+
             const SizedBox(height: 44),
           ],
-
-
-
-          ),
+        ),
       ),
     );
-
   }
 }
 

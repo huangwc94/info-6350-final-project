@@ -29,7 +29,7 @@ class SmartDeviceBox extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
               
             ),
-            padding: EdgeInsets.symmetric(vertical: 25),
+            padding: const EdgeInsets.symmetric(vertical: 25),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -39,7 +39,7 @@ class SmartDeviceBox extends StatelessWidget {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(top: 25.0),
+                    padding: const EdgeInsets.only(top: 25.0),
                     child: 
                     Text(smartDeviceName),
                     ),

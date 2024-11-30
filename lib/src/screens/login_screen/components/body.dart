@@ -18,19 +18,19 @@ class _BodyState extends State<Body> {
       // key: _scaffoldKey,
       body: SafeArea(
         child: ListView(
-          padding: EdgeInsets.symmetric(horizontal: 36),
-          physics: AlwaysScrollableScrollPhysics(),
-          key: PageStorageKey("Divider 1"),
+          padding: const EdgeInsets.symmetric(horizontal: 36),
+          physics: const AlwaysScrollableScrollPhysics(),
+          key: const PageStorageKey("Divider 1"),
           children: <Widget>[
             Column(
               children: [
-                SizedBox(height: 70),
-                Icon(
+                const SizedBox(height: 70),
+                const Icon(
                   Icons.account_circle_outlined,
                   color: Color.fromARGB(255, 108, 76, 149),
                   size: 80,
                 ),
-                SizedBox(height: 13),
+                const SizedBox(height: 13),
                 Text(
                   '',
                   style: Theme.of(context)
@@ -38,7 +38,7 @@ class _BodyState extends State<Body> {
                       .headlineSmall
                       ?.copyWith(color: colorScheme.primary),
                 ),
-                SizedBox(height: 44),
+                const SizedBox(height: 44),
               ],
             ),
             AutofillGroup(
@@ -49,7 +49,7 @@ class _BodyState extends State<Body> {
                   children: <Widget>[
                     TextFormField(
                       autofillHints: const [AutofillHints.username],
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           labelText: 'Username/Email',
                           border: OutlineInputBorder()),
                       validator: (val) => (val?.length ?? 0) < 1
@@ -61,10 +61,10 @@ class _BodyState extends State<Body> {
                       // controller: _controllerUsername,
                       autocorrect: false,
                     ),
-                    SizedBox(height: 36),
+                    const SizedBox(height: 36),
                     TextFormField(
                       autofillHints: const [AutofillHints.password],
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           labelText: 'Password', border: OutlineInputBorder()),
                       validator: (val) =>
                           (val?.length ?? 0) < 1 ? 'Password Required' : null,
@@ -79,7 +79,7 @@ class _BodyState extends State<Body> {
                 ),
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -93,6 +93,7 @@ class _BodyState extends State<Body> {
                   GestureDetector(
                     child: Container(
                       height: 48,
+                      alignment: Alignment.centerLeft,
                       child: Text(
                         'Remember Me',
                         style: Theme.of(context)
@@ -100,7 +101,6 @@ class _BodyState extends State<Body> {
                             .bodyLarge
                             ?.copyWith(color: colorScheme.onSurfaceVariant),
                       ),
-                      alignment: Alignment.centerLeft,
                     ),
                     // onTap: () {
                     //   _auth.handleRememberMe(!_auth.rememberMe);
@@ -108,7 +108,7 @@ class _BodyState extends State<Body> {
                   )
                 ]),
                 TextButton(
-                  child: Text(
+                  child: const Text(
                     'Forget Password?',
                     style: TextStyle(color: Color.fromARGB(255, 108, 76, 149),),
                   ),
@@ -118,13 +118,13 @@ class _BodyState extends State<Body> {
                 ),
               ],
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             FilledButton(
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(
+                backgroundColor: WidgetStateProperty.all(
                   const Color.fromARGB(255, 108, 76, 149), 
                 ),
-                padding: MaterialStateProperty.all(
+                padding: WidgetStateProperty.all(
                   const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
                 ),
               ),
@@ -139,11 +139,11 @@ class _BodyState extends State<Body> {
                 ),
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             TextButton(
-              child: Padding(
+              child: const Padding(
                 padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+                    EdgeInsets.symmetric(vertical: 10, horizontal: 24),
                 child: Text(
                   'Sign Up',
                   style: TextStyle(color: Color.fromARGB(255, 108, 76, 149), fontSize: 18),

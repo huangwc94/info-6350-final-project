@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class LightScreen extends StatefulWidget {
+  const LightScreen({super.key});
+
   @override
   _LightScreenState createState() => _LightScreenState();
 }
@@ -18,17 +20,14 @@ class _LightScreenState extends State<LightScreen> {
     });
   }
 
-
   // Function to prepare the data for the bar chart (usage in the last 12 days)
   List<BarChartGroupData> _prepareChartData() {
     // Get the current date and filter entries from the last 12 days
     DateTime currentDate = DateTime.now();
-    List<Map<String, dynamic>> filteredData = usageHistory
-        .where((entry) {
-          DateTime entryDate = entry['timestamp'];
-          return currentDate.difference(entryDate).inDays <= 12;
-        })
-        .toList();
+    List<Map<String, dynamic>> filteredData = usageHistory.where((entry) {
+      DateTime entryDate = entry['timestamp'];
+      return currentDate.difference(entryDate).inDays <= 12;
+    }).toList();
 
     // Initialize the counts for ON/OFF for each day
     Map<int, int> onCountPerDay = {};
@@ -52,12 +51,12 @@ class _LightScreenState extends State<LightScreen> {
           x: i - 1,
           barRods: [
             BarChartRodData(
-              y: (onCountPerDay[i] ?? 0).toDouble(),
-              colors: [Colors.yellow], // Light ON color
+              toY: (onCountPerDay[i] ?? 0).toDouble(),
+              color: Colors.yellow, // Light ON color
             ),
             BarChartRodData(
-              y: (offCountPerDay[i] ?? 0).toDouble(),
-              colors: [Colors.grey], // Light OFF color
+              toY: (offCountPerDay[i] ?? 0).toDouble(),
+              color: Colors.grey, // Light OFF color
             ),
           ],
           showingTooltipIndicators: [0, 1],
@@ -74,8 +73,9 @@ class _LightScreenState extends State<LightScreen> {
       appBar: AppBar(
         title: const Text(
           "Light",
-          style: TextStyle(fontSize: 22),),
-        backgroundColor: Color.fromARGB(255, 230, 228, 228),
+          style: TextStyle(fontSize: 22),
+        ),
+        backgroundColor: const Color.fromARGB(255, 230, 228, 228),
       ),
       body: Container(
         color: const Color.fromARGB(255, 230, 228, 228),
@@ -85,19 +85,19 @@ class _LightScreenState extends State<LightScreen> {
             // Light Icon and Button
             Container(
               decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              
-            ),
-              padding: EdgeInsets.all(15.0),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              padding: const EdgeInsets.all(15.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Mode"),
+                  const Text("Mode"),
                   CupertinoSwitch(
                     value: isLightOn, // The current state of the switch
                     onChanged: (bool value) {
-                      toggleLight(value); // Call the toggle function when switch is toggled
+                      toggleLight(
+                          value); // Call the toggle function when switch is toggled
                     },
                   ),
                 ],

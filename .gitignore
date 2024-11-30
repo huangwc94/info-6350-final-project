@@ -46,3 +46,4 @@ app.keystore
 
 # Other generated files
 pubspec.lock
+node_modules

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Device Simulator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+        }
+        h1 {
+            margin: 20px;
+            color: #333;
+        }
+        h3 {
+            color: #555;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 300px;
+        }
+        li {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin: 10px 0;
+            padding: 15px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-align: center;
+        }
+        li:hover {
+            background: #e6f7ff;
+        }
+        #device-controls {
+            margin-top: 20px;
+            display: none;
+            text-align: center;
+        }
+        button {
+            background: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .svg-container {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-top: 20px;
+        }
+        .svg-container svg {
+            width: 150px;
+            height: 150px;
+        }
+        .svg-lamp, .svg-tv {
+            transition: fill 0.3s ease;
+        }
+        #status {
+            margin-top: 15px;
+            font-size: 18px;
+            color: #555;
+        }
+        footer {
+            margin-top: auto;
+            padding: 10px;
+            background: #007BFF;
+            color: white;
+            width: 100%;
+            text-align: center;
+        }
+        #user-update input {
+            padding: 8px;
+            font-size: 14px;
+            margin: 5px;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Smart Device Simulator</h1>
+    <div>
+        <h3>Select a User</h3>
+        <ul id="user-list"></ul>
+    </div>
+    <div id="device-controls">
+        <h3>Device Controls</h3>
+        <button id="toggle-light">Toggle Lamp</button>
+        <button id="toggle-tv">Toggle TV</button>
+        <div class="svg-container">
+            <svg id="lamp-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <circle class="svg-lamp" cx="50" cy="30" r="15" fill="gray" />
+                <rect x="45" y="45" width="10" height="40" fill="black" />
+            </svg>
+            <svg id="tv-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <rect class="svg-tv" x="15" y="25" width="70" height="50" fill="black" />
+                <rect x="25" y="35" width="50" height="30" fill="gray" />
+            </svg>
+        </div>
+        <p id="status"></p>
+    </div>
+    <div id="user-update" style="display: none; margin-top: 20px;">
+        <h3>Update User Info</h3>
+        <label for="update-name">Name:</label>
+        <input type="text" id="update-name" placeholder="Enter new name">
+        <br><br>
+        <label for="update-password">Password:</label>
+        <input type="password" id="update-password" placeholder="Enter new password">
+        <br><br>
+        <button id="update-user-button">Update Info</button>
+    </div>
+    <footer>
+        &copy; 2024 Smart Device Simulator
+    </footer>
+    <script>
+        const userList = document.getElementById('user-list');
+        const deviceControls = document.getElementById('device-controls');
+        const toggleLightButton = document.getElementById('toggle-light');
+        const toggleTVButton = document.getElementById('toggle-tv');
+        const statusDisplay = document.getElementById('status');
+        const updateUserButton = document.getElementById('update-user-button');
+        const updateNameInput = document.getElementById('update-name');
+        const updatePasswordInput = document.getElementById('update-password');
+        const userUpdateSection = document.getElementById('user-update');
+
+        const lampSvg = document.querySelector('.svg-lamp');
+        const tvSvg = document.querySelector('.svg-tv');
+
+        let currentUser = null;
+        let websocket = null;
+        let token = null;
+
+        // Fetch registered users and display them
+        async function fetchUsers() {
+            try {
+                const response = await fetch('/public/users');
+                const users = await response.json();
+
+                users.forEach((user) => {
+                    const li = document.createElement('li');
+                    li.textContent = `${user.name} `;
+                    li.onclick = () => connectUser(user.username);
+                    userList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
+        }
+
+        // Fetch token for the selected user and connect to WebSocket
+        async function connectUser(username) {
+            try {
+                const response = await fetch(`/public/token/${username}`);
+                const data = await response.json();
+                token = data.token;
+                currentUser = username;
+
+                // Fetch initial full state of devices
+                const stateResponse = await fetch('/devices/state', {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                });
+                const stateData = await stateResponse.json();
+                updateDeviceState(stateData.devices);
+
+                // Open WebSocket connection
+                websocket = new WebSocket(`ws://localhost:3000/?token=${token}`);
+                websocket.onopen = () => {
+                    console.log('WebSocket connected');
+                    statusDisplay.textContent = `Logged in as: ${currentUser}`;
+                    deviceControls.style.display = 'block';
+                    userUpdateSection.style.display = 'block';
+                };
+
+                websocket.onmessage = (event) => {
+                    const message = JSON.parse(event.data);
+                    if (message.devices) {
+                        updateDeviceState(message.devices);
+                    }
+                };
+
+                websocket.onclose = () => {
+                    console.log('WebSocket closed');
+                    statusDisplay.textContent = '';
+                    deviceControls.style.display = 'none';
+                    userUpdateSection.style.display = 'none';
+                };
+
+                websocket.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                };
+            } catch (error) {
+                console.error('Error fetching token or connecting user:', error);
+            }
+        }
+
+        // Update device state on the frontend
+        function updateDeviceState(devices) {
+            toggleLampLight(devices.light.status);
+            toggleTVLight(devices.tv.status);
+        }
+
+        // Toggle lamp SVG
+        function toggleLampLight(status) {
+            lampSvg.setAttribute('fill', status === 'on' ? 'yellow' : 'gray');
+        }
+
+        // Toggle TV SVG
+        function toggleTVLight(status) {
+            tvSvg.setAttribute('fill', status === 'on' ? 'blue' : 'black');
+        }
+
+        // Toggle lamp
+        toggleLightButton.onclick = async () => {
+            try {
+                const response = await fetch('/devices/light/toggle', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                });
+                const result = await response.json();
+                updateDeviceState(result.devices);
+            } catch (error) {
+                console.error('Error toggling lamp:', error);
+            }
+        };
+
+        // Toggle TV
+        toggleTVButton.onclick = async () => {
+            try {
+                const response = await fetch('/devices/tv/toggle', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                });
+                const result = await response.json();
+                updateDeviceState(result.devices);
+            } catch (error) {
+                console.error('Error toggling TV:', error);
+            }
+        };
+
+        // Update user info
+        updateUserButton.onclick = async () => {
+            const name = updateNameInput.value;
+            const password = updatePasswordInput.value;
+
+            try {
+                const response = await fetch('/user/update', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, password }),
+                });
+
+                const result = await response.json();
+                alert(result.message);
+
+                // Update displayed name
+                if (result.user.name) {
+                    statusDisplay.textContent = `Logged in as: ${result.user.name}`;
+                }
+
+                // Clear input fields
+                updateNameInput.value = '';
+                updatePasswordInput.value = '';
+            } catch (error) {
+                console.error('Error updating user info:', error);
+            }
+        };
+
+        // Initialize on page load
+        window.onload = fetchUsers;
+    </script>
+</body>
+</html>

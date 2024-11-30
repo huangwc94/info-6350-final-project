@@ -17,11 +17,11 @@ class _BodyState extends State<Body> {
       // key: _scaffoldKey,
       body: SafeArea(
         child: ListView(
-          padding: EdgeInsets.symmetric(horizontal: 36),
-          physics: AlwaysScrollableScrollPhysics(),
-          key: PageStorageKey("Divider 1"),
+          padding: const EdgeInsets.symmetric(horizontal: 36),
+          physics: const AlwaysScrollableScrollPhysics(),
+          key: const PageStorageKey("Divider 1"),
           children: <Widget>[
-            Column(
+            const Column(
               children: [
                 SizedBox(height: 30),
                 Text(
@@ -49,11 +49,11 @@ class _BodyState extends State<Body> {
                   crossAxisAlignment:CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    Text('Username:'),
-                    SizedBox(height: 10),
+                    const Text('Username:'),
+                    const SizedBox(height: 10),
                     TextFormField(
                       autofillHints: const [AutofillHints.username],
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           labelText: 'Username',
                           border: OutlineInputBorder()),
                       validator: (val) => (val?.length ?? 0) < 1
@@ -65,12 +65,12 @@ class _BodyState extends State<Body> {
                       // controller: _controllerUsername,
                       autocorrect: false,
                     ),
-                    SizedBox(height: 15),
-                    Text('Email:'),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 15),
+                    const Text('Email:'),
+                    const SizedBox(height: 10),
                     TextFormField(
                       autofillHints: const [AutofillHints.username],
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           labelText: 'Email',
                           border: OutlineInputBorder()),
                       validator: (val) => (val?.length ?? 0) < 1
@@ -82,12 +82,12 @@ class _BodyState extends State<Body> {
                       // controller: _controllerUsername,
                       autocorrect: false,
                     ),
-                    SizedBox(height: 15),
-                    Text('Password:'),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 15),
+                    const Text('Password:'),
+                    const SizedBox(height: 10),
                     TextFormField(
                       autofillHints: const [AutofillHints.password],
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                           labelText: 'Password', border: OutlineInputBorder()),
                       validator: (val) =>
                           (val?.length ?? 0) < 1 ? 'Password Required' : null,
@@ -102,13 +102,13 @@ class _BodyState extends State<Body> {
                 ),
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             FilledButton(
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(
+                backgroundColor: WidgetStateProperty.all(
                   const Color.fromARGB(255, 108, 76, 149), // Custom purple color
                 ),
-                padding: MaterialStateProperty.all(
+                padding: WidgetStateProperty.all(
                   const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
                 ),
               ),
@@ -123,13 +123,13 @@ class _BodyState extends State<Body> {
                 ),
               ),
             ),
-                        SizedBox(height: 24),
+                        const SizedBox(height: 24),
             FilledButton(
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(
+                backgroundColor: WidgetStateProperty.all(
                   const Color.fromARGB(255, 108, 76, 149),
                 ),
-                padding: MaterialStateProperty.all(
+                padding: WidgetStateProperty.all(
                   const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
                 ),
               ),
