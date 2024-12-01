@@ -20,65 +20,67 @@ class _AcScreenState extends State<AcScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.ac_unit_outlined,
-              size: 100,
-              color: isAcOn ? Colors.lightBlue : Colors.grey,
-            ),
-            const SizedBox(height: 20),
-            Text(
-              isAcOn ? "AC is ON" : "AC is OFF",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.ac_unit_outlined,
+                size: 100,
                 color: isAcOn ? Colors.lightBlue : Colors.grey,
               ),
-            ),
-            const SizedBox(height: 40),
-            if (isAcOn)
-              Column(
-                children: [
-                  Text(
-                    "Temperature: ${temperature.toStringAsFixed(1)}°C",
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                  Slider(
-                    value: temperature,
-                    min: 16,
-                    max: 30,
-                    divisions: 14,
-                    label: temperature.toStringAsFixed(1),
-                    onChanged: (newTemperature) {
-                      setState(() {
-                        temperature = newTemperature;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  isAcOn = !isAcOn;
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isAcOn ? Colors.grey : Colors.lightBlue,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 15,
+              const SizedBox(height: 20),
+              Text(
+                isAcOn ? "AC is ON" : "AC is OFF",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: isAcOn ? Colors.lightBlue : Colors.grey,
                 ),
               ),
-              child: Text(
-                isAcOn ? "Turn OFF" : "Turn ON",
-                style: const TextStyle(fontSize: 18),
+              const SizedBox(height: 40),
+              if (isAcOn)
+                Column(
+                  children: [
+                    Text(
+                      "Temperature: ${temperature.toStringAsFixed(1)}°C",
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                    Slider(
+                      value: temperature,
+                      min: 16,
+                      max: 30,
+                      divisions: 14,
+                      label: temperature.toStringAsFixed(1),
+                      onChanged: (newTemperature) {
+                        setState(() {
+                          temperature = newTemperature;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    isAcOn = !isAcOn;
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isAcOn ? Colors.grey : Colors.lightBlue,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 15,
+                  ),
+                ),
+                child: Text(
+                  isAcOn ? "Turn OFF" : "Turn ON",
+                  style: const TextStyle(fontSize: 18),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

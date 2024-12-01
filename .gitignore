@@ -47,3 +47,7 @@ app.keystore
 # Other generated files
 pubspec.lock
 node_modules
+backend/server
+
+# FVM Version Cache
+.fvm/

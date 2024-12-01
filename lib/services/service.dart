@@ -1,46 +1,47 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
-void main() async {
-  final apiService = ApiService('http://localhost:3000');
-
-  try {
-    // Sign up a user
-    await apiService.signup('testuser', 'testpassword', 'Test User');
-
-    // Login
-    await apiService.login('testuser', 'testpassword');
-
-    // Fetch device state
-    final deviceState = await apiService.fetchDeviceState();
-    print('Light Status: ${deviceState.lightStatus}');
-    print('TV Status: ${deviceState.tvStatus}');
-
-    // Fetch device metrics
-    final deviceMetrics = await apiService.fetchDeviceMetrics();
-    print('Light Metrics: ${deviceMetrics.lightMetrics}');
-    print('TV Metrics: ${deviceMetrics.tvMetrics}');
-  } catch (e) {
-    print('Error: $e');
-  }
-}
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
-  final String baseUrl;
-
-  ApiService(this.baseUrl);
-
-  // Token for authentication
+  final String _baseUrl =
+      'http://localhost:3000'; // Replace with your backend URL
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
   String? _token;
+  // Private constructor
+  ApiService._internal();
 
-  // Set token after login or signup
-  void setToken(String token) {
+  // Static instance
+  static final ApiService _instance = ApiService._internal();
+
+  // Factory constructor
+  factory ApiService() => _instance;
+
+  // Save token to secure storage
+  Future<void> _saveToken(String token) async {
+    await _storage.write(key: 'auth_token', value: token);
     _token = token;
   }
 
-  // Signup API
+  // Load token from secure storage
+  Future<void> loadToken() async {
+    _token = await _storage.read(key: 'auth_token');
+  }
+
+  // Clear token from secure storage
+  Future<void> clearToken() async {
+    await _storage.delete(key: 'auth_token');
+    _token = null;
+  }
+
+  // Set token and save it
+  Future<void> setToken(String token) async {
+    _token = token;
+    await _saveToken(token);
+  }
+
+  // Signup
   Future<void> signup(String username, String password, String name) async {
-    final url = Uri.parse('$baseUrl/signup');
+    final url = Uri.parse('$_baseUrl/signup');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -48,14 +49,21 @@ class ApiService {
           {'username': username, 'password': password, 'name': name}),
     );
 
-    if (response.statusCode != 201) {
+    if (response.statusCode != 200) {
       throw Exception('Failed to sign up: ${response.body}');
     }
+    final data = jsonDecode(response.body);
+    print('Signup Response: ${response.body}');
+    await setToken(data['token']);
   }
 
-  // Login API
+  Future<void> logout() async {
+    await clearToken();
+  }
+
+  // Login
   Future<void> login(String username, String password) async {
-    final url = Uri.parse('$baseUrl/login');
+    final url = Uri.parse('$_baseUrl/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -64,15 +72,15 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      setToken(data['token']);
+      await setToken(data['token']);
     } else {
       throw Exception('Failed to login: ${response.body}');
     }
   }
 
-  // Fetch device state
-  Future<DeviceState> fetchDeviceState() async {
-    final url = Uri.parse('$baseUrl/devices/state');
+  // Fetch user information
+  Future<Map<String, dynamic>> fetchUserInfo() async {
+    final url = Uri.parse('$_baseUrl/user');
     final response = await http.get(
       url,
       headers: {
@@ -83,15 +91,88 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return DeviceState.fromJson(data['devices']);
+      return data;
+    } else if (response.statusCode == 404) {
+      throw Exception('User not found');
+    } else {
+      throw Exception('Failed to fetch user info: ${response.body}');
+    }
+  }
+
+  // Update user information
+  Future<void> updateUser(String? password, String? name) async {
+    final url = Uri.parse('$_baseUrl/user/update');
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $_token',
+      },
+      body: jsonEncode({'password': password, 'name': name}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update user: ${response.body}');
+    }
+  }
+
+  // Toggle light
+  Future<Map<String, dynamic>> toggleLight() async {
+    final url = Uri.parse('$_baseUrl/devices/light/toggle');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $_token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to toggle light: ${response.body}');
+    }
+  }
+
+  // Toggle TV
+  Future<Map<String, dynamic>> toggleTV() async {
+    final url = Uri.parse('$_baseUrl/devices/tv/toggle');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $_token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to toggle TV: ${response.body}');
+    }
+  }
+
+  // Fetch full device state
+  Future<Map<String, dynamic>> fetchDeviceState() async {
+    final url = Uri.parse('$_baseUrl/devices/state');
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $_token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body)['devices'];
     } else {
       throw Exception('Failed to fetch device state: ${response.body}');
     }
   }
 
-  // Fetch metrics
-  Future<DeviceMetrics> fetchDeviceMetrics() async {
-    final url = Uri.parse('$baseUrl/devices/metrics');
+  // Fetch usage metrics
+  Future<Map<String, dynamic>> fetchMetrics() async {
+    final url = Uri.parse('$_baseUrl/devices/metrics');
     final response = await http.get(
       url,
       headers: {
@@ -101,53 +182,9 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return DeviceMetrics.fromJson(data);
+      return jsonDecode(response.body);
     } else {
       throw Exception('Failed to fetch metrics: ${response.body}');
     }
-  }
-}
-
-// Classes for device state and metrics
-class DeviceState {
-  final String lightStatus;
-  final String tvStatus;
-
-  DeviceState({required this.lightStatus, required this.tvStatus});
-
-  factory DeviceState.fromJson(Map<String, dynamic> json) {
-    return DeviceState(
-      lightStatus: json['light']['status'],
-      tvStatus: json['tv']['status'],
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'light': {'status': lightStatus},
-      'tv': {'status': tvStatus},
-    };
-  }
-}
-
-class DeviceMetrics {
-  final List<int> lightMetrics;
-  final List<int> tvMetrics;
-
-  DeviceMetrics({required this.lightMetrics, required this.tvMetrics});
-
-  factory DeviceMetrics.fromJson(Map<String, dynamic> json) {
-    return DeviceMetrics(
-      lightMetrics: List<int>.from(json['light']['metrics']),
-      tvMetrics: List<int>.from(json['tv']['metrics']),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'light': {'metrics': lightMetrics},
-      'tv': {'metrics': tvMetrics},
-    };
   }
 }

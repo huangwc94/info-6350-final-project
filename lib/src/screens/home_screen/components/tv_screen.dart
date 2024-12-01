@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../../../services/service.dart';
 
 class TvScreen extends StatefulWidget {
   @override
@@ -8,24 +9,55 @@ class TvScreen extends StatefulWidget {
 }
 
 class _TvScreenState extends State<TvScreen> {
-  bool isTvOn = true; // The current state of the switch
+  bool isTvOn = false;
+  List<double> tvUsageHistory = [];
+  final ApiService _apiService = ApiService();
 
-  // Sample data for the last 12 days (Usage in hours)
-  final List<int> usageHistory = [3, 2, 4, 1, 5, 6, 3, 4, 2, 3, 1, 5];
+  @override
+  void initState() {
+    super.initState();
+    _fetchInitialData();
+  }
 
-  // Function to toggle the switch
-  void toggleTv(bool value) {
-    setState(() {
-      isTvOn = value;
-    });
+  // Fetch initial state and usage metrics
+  Future<void> _fetchInitialData() async {
+    try {
+      final state = await _apiService.fetchDeviceState();
+      setState(() {
+        isTvOn = state['tv']['status'] == 'on';
+      });
+
+      final metrics = await _apiService.fetchMetrics();
+      setState(() {
+        tvUsageHistory = List<double>.from(metrics['tv']['metrics']);
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch data: $e')),
+      );
+    }
+  }
+
+  // Toggle TV state using the API
+  Future<void> _toggleTv(bool value) async {
+    try {
+      final updatedState = await _apiService.toggleTV();
+      setState(() {
+        isTvOn = updatedState['devices']['tv']['status'] == 'on';
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to toggle TV: $e')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("TV", style: TextStyle(fontSize: 23)),
-        backgroundColor: Color.fromARGB(255, 230, 228, 228),
+        title: const Text("TV", style: TextStyle(fontSize: 23)),
+        backgroundColor: const Color.fromARGB(255, 230, 228, 228),
       ),
       body: Container(
         padding: const EdgeInsets.all(16.0),
@@ -37,29 +69,28 @@ class _TvScreenState extends State<TvScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
               ),
-              padding: EdgeInsets.all(15.0),
+              padding: const EdgeInsets.all(15.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Mode"),
+                  const Text("Mode"),
                   CupertinoSwitch(
-                    value: isTvOn, // The current state of the switch
+                    value: isTvOn,
                     onChanged: (bool value) {
-                      toggleTv(
-                          value); // Call the toggle function when switch is toggled
+                      _toggleTv(value);
                     },
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 80),
-            Text(
+            const Text(
               "TV Usage in the Last 12 Days",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             AspectRatio(
-              aspectRatio: 1.5, // Controls the chart's aspect ratio
+              aspectRatio: 1.5,
               child: BarChart(
                 BarChartData(
                   gridData: FlGridData(show: true),
@@ -81,7 +112,7 @@ class _TvScreenState extends State<TvScreen> {
                         showTitles: true,
                         reservedSize: 40,
                         getTitlesWidget: (double value, TitleMeta meta) {
-                          if (value >= 0 && value < 12) {
+                          if (value >= 0 && value < tvUsageHistory.length) {
                             return Text(
                               'Day ${value.toInt() + 1}',
                               style: const TextStyle(fontSize: 12),
@@ -100,13 +131,13 @@ class _TvScreenState extends State<TvScreen> {
                     ),
                   ),
                   barGroups: List.generate(
-                    12,
+                    tvUsageHistory.length,
                     (index) => BarChartGroupData(
                       x: index,
                       barsSpace: 4,
                       barRods: [
                         BarChartRodData(
-                          toY: usageHistory[index].toDouble(),
+                          toY: tvUsageHistory[index].toDouble(),
                           color: Colors.blueAccent,
                           width: 16,
                           borderRadius: BorderRadius.circular(6),

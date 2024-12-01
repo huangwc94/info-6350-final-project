@@ -13,6 +13,12 @@ const wsServer = new WebSocket.Server({ noServer: true });
 app.use(bodyParser.json());
 app.use(express.static('public')); // Serve public HTML files
 
+function randomUsage(len,maxVal) {
+    const arr = Array(len).fill(12);
+    arr.forEach((v,i) => arr[i] = Math.random() * maxVal)
+    return arr;
+}
+
 // In-memory storage
 const users = {
     admin: { password: 'admin', name: 'Administrator' },
@@ -20,14 +26,14 @@ const users = {
 
 const userDevices = {
     admin: {
-        light: { status: 'off', metrics: Array(12).fill(0) },
-        tv: { status: 'off', metrics: Array(12).fill(0) },
+        light: { status: 'off', metrics: randomUsage(12, 10) },
+        tv: { status: 'off', metrics: randomUsage(12,10) },
     },
 };
 
 // Middleware for authenticating JWT
 function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
+    const authHeader = req.headers['authorization'] || req.headers['Authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     if (!token) return res.sendStatus(401);
     jwt.verify(token, SECRET_KEY, (err, user) => {
@@ -85,10 +91,11 @@ app.post('/signup', (req, res) => {
 
     users[username] = { password, name };
     userDevices[username] = {
-        light: { status: 'off', metrics: Array(12).fill(0) },
-        tv: { status: 'off', metrics: Array(12).fill(0) },
+        light: { status: 'off', metrics: randomUsage(12,10) },
+        tv: { status: 'off', metrics: randomUsage(12,10) },
     };
-    res.status(201).send('User created');
+    const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
+    res.json({ token });
 });
 
 // Login
@@ -100,6 +107,15 @@ app.post('/login', (req, res) => {
 
     const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
     res.json({ token });
+});
+
+// Update user information
+app.get('/user', authenticateToken, (req, res) => {
+    const { username } = req.user;
+    if (!users[username]) {
+        return res.status(404).send('User not found');
+    }
+    res.json({ user: users[username], username });
 });
 
 // Update user information
@@ -126,7 +142,6 @@ app.post('/devices/light/toggle', authenticateToken, (req, res) => {
     const user = req.user.username;
     const device = userDevices[user].light;
     device.status = device.status === 'off' ? 'on' : 'off';
-
     const fullState = userDevices[user];
     if (wsConnections.has(user)) {
         wsConnections.get(user).forEach((ws) => {
@@ -142,7 +157,6 @@ app.post('/devices/tv/toggle', authenticateToken, (req, res) => {
     const user = req.user.username;
     const device = userDevices[user].tv;
     device.status = device.status === 'off' ? 'on' : 'off';
-
     const fullState = userDevices[user];
     if (wsConnections.has(user)) {
         wsConnections.get(user).forEach((ws) => {

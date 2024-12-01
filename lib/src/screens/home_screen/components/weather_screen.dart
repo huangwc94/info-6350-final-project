@@ -38,7 +38,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: Center(
+            child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
@@ -104,7 +105,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
               ),
             ),
           ],
-        ),
+        )),
       ),
     );
   }

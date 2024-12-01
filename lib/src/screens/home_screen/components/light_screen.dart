@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../../../services/service.dart';
 
 class LightScreen extends StatefulWidget {
   const LightScreen({super.key});
@@ -11,59 +12,64 @@ class LightScreen extends StatefulWidget {
 
 class _LightScreenState extends State<LightScreen> {
   bool isLightOn = false;
-  List<Map<String, dynamic>> usageHistory = [];
+  List<double> lightMetrics = [];
+  final ApiService _apiService = ApiService();
 
-  // Function to toggle the light and add usage history
-  void toggleLight(bool value) {
-    setState(() {
-      isLightOn = value; // Update the light status based on the switch value
-    });
+  @override
+  void initState() {
+    super.initState();
+    _fetchInitialData();
   }
 
-  // Function to prepare the data for the bar chart (usage in the last 12 days)
-  List<BarChartGroupData> _prepareChartData() {
-    // Get the current date and filter entries from the last 12 days
-    DateTime currentDate = DateTime.now();
-    List<Map<String, dynamic>> filteredData = usageHistory.where((entry) {
-      DateTime entryDate = entry['timestamp'];
-      return currentDate.difference(entryDate).inDays <= 12;
-    }).toList();
+  // Fetch the initial state and metrics from the API
+  Future<void> _fetchInitialData() async {
+    try {
+      final state = await _apiService.fetchDeviceState();
+      setState(() {
+        isLightOn = state['light']['status'] == 'on';
+      });
 
-    // Initialize the counts for ON/OFF for each day
-    Map<int, int> onCountPerDay = {};
-    Map<int, int> offCountPerDay = {};
-
-    // Count the usage for ON and OFF per day
-    for (var entry in filteredData) {
-      int day = entry['timestamp'].day;
-      if (entry['status'] == 'ON') {
-        onCountPerDay[day] = (onCountPerDay[day] ?? 0) + 1;
-      } else {
-        offCountPerDay[day] = (offCountPerDay[day] ?? 0) + 1;
-      }
+      final metrics = await _apiService.fetchMetrics();
+      setState(() {
+        lightMetrics = List<double>.from(metrics['light']['metrics']);
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch data: $e')),
+      );
     }
+  }
 
-    // Prepare the data for the bar chart
+  // Function to toggle the light using the API
+  Future<void> _toggleLight(bool value) async {
+    try {
+      final updatedState = await _apiService.toggleLight();
+      setState(() {
+        isLightOn = updatedState['devices']['light']['status'] == 'on';
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to toggle light: $e')),
+      );
+    }
+  }
+
+  // Prepare data for the bar chart
+  List<BarChartGroupData> _prepareChartData() {
     List<BarChartGroupData> barChartData = [];
-    for (int i = 1; i <= 12; i++) {
+    for (int i = 0; i < lightMetrics.length; i++) {
       barChartData.add(
         BarChartGroupData(
-          x: i - 1,
+          x: i,
           barRods: [
             BarChartRodData(
-              toY: (onCountPerDay[i] ?? 0).toDouble(),
+              toY: lightMetrics[i].toDouble(),
               color: Colors.yellow, // Light ON color
             ),
-            BarChartRodData(
-              toY: (offCountPerDay[i] ?? 0).toDouble(),
-              color: Colors.grey, // Light OFF color
-            ),
           ],
-          showingTooltipIndicators: [0, 1],
         ),
       );
     }
-
     return barChartData;
   }
 
@@ -96,7 +102,7 @@ class _LightScreenState extends State<LightScreen> {
                   CupertinoSwitch(
                     value: isLightOn, // The current state of the switch
                     onChanged: (bool value) {
-                      toggleLight(
+                      _toggleLight(
                           value); // Call the toggle function when switch is toggled
                     },
                   ),

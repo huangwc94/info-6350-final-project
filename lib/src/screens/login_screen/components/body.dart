@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../services/service.dart';
 
 class Body extends StatefulWidget {
   const Body({Key? key}) : super(key: key);
@@ -9,13 +10,48 @@ class Body extends StatefulWidget {
 
 class _BodyState extends State<Body> {
   String? _username, _password;
+  final _formKey = GlobalKey<FormState>();
+  final ApiService _apiService = ApiService(); // Replace with your base URL
 
+  bool _isLoading = false;
 
-	@override
+  Future<void> _doLogin() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      _formKey.currentState?.save();
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        await _apiService.login(_username!, _password!);
+        Navigator.pushNamed(context, "/home-screen");
+      } catch (e) {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Login Failed'),
+            content: Text(e.toString()),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
-      // key: _scaffoldKey,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 36),
@@ -32,7 +68,7 @@ class _BodyState extends State<Body> {
                 ),
                 const SizedBox(height: 13),
                 Text(
-                  '',
+                  'Login',
                   style: Theme.of(context)
                       .textTheme
                       .headlineSmall
@@ -43,7 +79,7 @@ class _BodyState extends State<Body> {
             ),
             AutofillGroup(
               child: Form(
-                // key: formKey,
+                key: _formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
@@ -52,13 +88,11 @@ class _BodyState extends State<Body> {
                       decoration: const InputDecoration(
                           labelText: 'Username/Email',
                           border: OutlineInputBorder()),
-                      validator: (val) => (val?.length ?? 0) < 1
+                      validator: (val) => (val?.isEmpty ?? true)
                           ? 'Username/Email Required'
                           : null,
                       onSaved: (val) => _username = val,
-                      obscureText: false,
                       keyboardType: TextInputType.text,
-                      // controller: _controllerUsername,
                       autocorrect: false,
                     ),
                     const SizedBox(height: 36),
@@ -67,13 +101,11 @@ class _BodyState extends State<Body> {
                       decoration: const InputDecoration(
                           labelText: 'Password', border: OutlineInputBorder()),
                       validator: (val) =>
-                          (val?.length ?? 0) < 1 ? 'Password Required' : null,
+                          (val?.isEmpty ?? true) ? 'Password Required' : null,
                       onSaved: (val) => _password = val,
                       obscureText: true,
-                      // controller: _controllerPassword,
                       keyboardType: TextInputType.text,
                       autocorrect: false,
-                      // onFieldSubmitted: (value) => doLogin(),
                     ),
                   ],
                 ),
@@ -102,15 +134,14 @@ class _BodyState extends State<Body> {
                             ?.copyWith(color: colorScheme.onSurfaceVariant),
                       ),
                     ),
-                    // onTap: () {
-                    //   _auth.handleRememberMe(!_auth.rememberMe);
-                    // },
                   )
                 ]),
                 TextButton(
                   child: const Text(
                     'Forget Password?',
-                    style: TextStyle(color: Color.fromARGB(255, 108, 76, 149),),
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 108, 76, 149),
+                    ),
                   ),
                   onPressed: () {
                     Navigator.pushNamed(context, '/forgetpassword');
@@ -119,35 +150,35 @@ class _BodyState extends State<Body> {
               ],
             ),
             const SizedBox(height: 24),
-            FilledButton(
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(
-                  const Color.fromARGB(255, 108, 76, 149), 
+            if (_isLoading)
+              const Center(child: CircularProgressIndicator())
+            else
+              FilledButton(
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(
+                    const Color.fromARGB(255, 108, 76, 149),
+                  ),
+                  padding: MaterialStateProperty.all(
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+                  ),
                 ),
-                padding: WidgetStateProperty.all(
-                  const EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+                onPressed: _doLogin,
+                child: const Text(
+                  'Login',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-              onPressed: () {
-                Navigator.pushNamed(context, "/home-screen");
-              },
-              child: const Text(
-                'Login',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                ),
-              ),
-            ),
             const SizedBox(height: 12),
             TextButton(
               child: const Padding(
-                padding:
-                    EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
                 child: Text(
                   'Sign Up',
-                  style: TextStyle(color: Color.fromARGB(255, 108, 76, 149), fontSize: 18),
-                  // textScaleFactor: textScaleFactor,
+                  style: TextStyle(
+                      color: Color.fromARGB(255, 108, 76, 149), fontSize: 18),
                 ),
               ),
               onPressed: () {
