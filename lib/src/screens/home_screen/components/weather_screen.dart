@@ -9,11 +9,10 @@ class WeatherScreen extends StatefulWidget {
 
 class _WeatherScreenState extends State<WeatherScreen> {
   bool isWeatherOn = true;
-  double temperature = 25.0; // Default temperature in Celsius
-  String weatherCondition = "Sunny";
-  String city = "New York";
+  double temperature = 9.0; // Default temperature in Celsius
+  String weatherCondition = "Cloudy";
+  String city = "Seattle";
 
-  // Example function to simulate changing weather conditions
   void toggleWeatherCondition() {
     setState(() {
       if (weatherCondition == "Sunny") {
@@ -43,7 +42,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.wb_sunny_outlined, // Icon representing weather
+              Icons.wb_sunny_outlined,
               size: 100,
               color: isWeatherOn ? Colors.orange : Colors.grey,
             ),
@@ -70,40 +69,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
               "Temperature: ${temperature.toStringAsFixed(1)}°C",
               style: const TextStyle(fontSize: 20),
             ),
-            const SizedBox(height: 40),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  isWeatherOn = !isWeatherOn;
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isWeatherOn ? Colors.grey : Colors.blueAccent,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 15,
-                ),
-              ),
-              child: Text(
-                isWeatherOn ? "Turn OFF" : "Turn ON",
-                style: const TextStyle(fontSize: 18),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: toggleWeatherCondition,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 15,
-                ),
-              ),
-              child: const Text(
-                "Change Weather",
-                style: TextStyle(fontSize: 18),
-              ),
-            ),
+            const SizedBox(height: 60),
           ],
         )),
       ),

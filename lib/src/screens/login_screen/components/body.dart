@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../services/service.dart';
+import 'forget_password_screen.dart';
 
 class Body extends StatefulWidget {
   const Body({Key? key}) : super(key: key);
@@ -86,10 +87,10 @@ class _BodyState extends State<Body> {
                     TextFormField(
                       autofillHints: const [AutofillHints.username],
                       decoration: const InputDecoration(
-                          labelText: 'Username/Email',
+                          labelText: 'Username',
                           border: OutlineInputBorder()),
                       validator: (val) => (val?.isEmpty ?? true)
-                          ? 'Username/Email Required'
+                          ? 'Username Required'
                           : null,
                       onSaved: (val) => _username = val,
                       keyboardType: TextInputType.text,
@@ -115,27 +116,6 @@ class _BodyState extends State<Body> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(children: [
-                  Checkbox(
-                    value: true,
-                    onChanged: (bool? newValue) {
-                      print("Checkbox value changed to: $newValue");
-                    },
-                  ),
-                  GestureDetector(
-                    child: Container(
-                      height: 48,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Remember Me',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyLarge
-                            ?.copyWith(color: colorScheme.onSurfaceVariant),
-                      ),
-                    ),
-                  )
-                ]),
                 TextButton(
                   child: const Text(
                     'Forget Password?',
@@ -144,7 +124,11 @@ class _BodyState extends State<Body> {
                     ),
                   ),
                   onPressed: () {
-                    Navigator.pushNamed(context, '/forgetpassword');
+                    Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ForgetPasswordScreen()),
+                        );
                   },
                 ),
               ],

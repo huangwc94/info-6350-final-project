@@ -78,6 +78,13 @@ class ApiService {
     }
   }
 
+  Future<void> resetPassword(String? username) async {
+    // Check if user exists
+
+    // change password
+    
+  }
+
   // Fetch user information
   Future<Map<String, dynamic>> fetchUserInfo() async {
     final url = Uri.parse('$_baseUrl/user');

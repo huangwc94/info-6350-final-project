@@ -162,7 +162,7 @@ class _SignupScreenState extends State<Body> {
                       FilledButton(
                         style: ButtonStyle(
                           backgroundColor:
-                              MaterialStateProperty.all(Colors.purple),
+                              MaterialStateProperty.all(Color.fromARGB(255, 108, 76, 149)),
                         ),
                         onPressed: _handleSignUp,
                         child: const Padding(
