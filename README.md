@@ -35,8 +35,8 @@ flutter pub get
 flutter run
 ```
 
-![Login screen](login.png)
+![Login screen](asset/readme_images/login.png)
 ![Home page screen](asset/readme_images/home.png)
 ![Light screen](asset/readme_images/Light.png)
-![TV screen](tv.png)
-![My profile screen](profile.png)
+![TV screen](asset/readme_images/tv.png)
+![My profile screen](asset/readme_images/profile.png)
