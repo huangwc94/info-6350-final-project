@@ -4,7 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
   final String _baseUrl =
-      'http://localhost:3000'; // Replace with your backend URL
+      'http://localhost:3000'; 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   String? _token;
   // Private constructor
@@ -76,13 +76,6 @@ class ApiService {
     } else {
       throw Exception('Failed to login: ${response.body}');
     }
-  }
-
-  Future<void> resetPassword(String? username) async {
-    // Check if user exists
-
-    // change password
-    
   }
 
   // Fetch user information

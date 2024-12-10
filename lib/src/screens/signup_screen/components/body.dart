@@ -127,14 +127,20 @@ class _SignupScreenState extends State<Body> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _passwordController,
-                      decoration: const InputDecoration(labelText: 'Password'),
+                      decoration: const InputDecoration(
+                        labelText: 'Password',
+                        hintText: 'Uppercase, lowercase & number',),
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter a password';
+                          return 'Please enter a password.';
                         }
-                        if (value.length < 6) {
-                          return 'Password must be at least 6 characters long';
+                        if (value.length < 8 || value.length > 16) {
+                          return 'Password must be 8 to 16 characters long.';
+                        }
+                        final regex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$');
+                        if (!regex.hasMatch(value)) {
+                          return 'Uppercase, lowercase and number please.';
                         }
                         return null;
                       },

@@ -84,12 +84,18 @@ class _BodyState extends State<Body> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text(
+          'Profile',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22),),
         backgroundColor: const Color.fromARGB(255, 108, 76, 149),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.white,),
           onPressed: () {
-            Navigator.pop(context); // Go back to the previous screen
+            Navigator.pop(context);
           },
         ),
       ),
@@ -139,30 +145,25 @@ class _BodyState extends State<Body> {
                             autocorrect: false,
                           ),
                           const SizedBox(height: 15),
-                          const Text('Email:'),
-                          const SizedBox(height: 10),
-                          TextFormField(
-                            initialValue: _email,
-                            decoration: const InputDecoration(
-                                labelText: 'Email',
-                                border: OutlineInputBorder()),
-                            validator: (val) => (val?.isEmpty ?? true)
-                                ? 'Email Required'
-                                : null,
-                            onSaved: (val) => _email = val,
-                            keyboardType: TextInputType.emailAddress,
-                            autocorrect: false,
-                          ),
-                          const SizedBox(height: 15),
                           const Text('Password:'),
                           const SizedBox(height: 10),
                           TextFormField(
                             decoration: const InputDecoration(
                                 labelText: 'Password',
                                 border: OutlineInputBorder()),
-                            validator: (val) => (val?.isEmpty ?? true)
-                                ? 'Password Required'
-                                : null,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a password.';
+                              }
+                              if (value.length < 8 || value.length > 16) {
+                                return 'Password must be 8 to 16 characters long.';
+                              }
+                              final regex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$');
+                              if (!regex.hasMatch(value)) {
+                                return 'Uppercase, lowercase and number please.';
+                              }
+                              return null;
+                            },
                             onSaved: (val) => _password = val,
                             obscureText: true,
                             keyboardType: TextInputType.text,

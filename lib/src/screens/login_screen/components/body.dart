@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../../services/service.dart';
-import 'forget_password_screen.dart';
 
 class Body extends StatefulWidget {
   const Body({Key? key}) : super(key: key);
@@ -111,27 +110,6 @@ class _BodyState extends State<Body> {
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  child: const Text(
-                    'Forget Password?',
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 108, 76, 149),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ForgetPasswordScreen()),
-                        );
-                  },
-                ),
-              ],
             ),
             const SizedBox(height: 24),
             if (_isLoading)
